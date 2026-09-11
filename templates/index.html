@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>MGC Sales Assistant</title>
+  <style>
+    body { font: 16px/1.5 system-ui, sans-serif; max-width: 900px; margin: 2rem auto; padding: 0 1rem; color: #202020; }
+    section { border-top: 1px solid #ccc; padding: 1rem 0; }
+    label { display: block; margin-top: .65rem; }
+    input, select, textarea, button { font: inherit; padding: .4rem; box-sizing: border-box; }
+    textarea { width: 100%; }
+    button { margin-top: 1rem; cursor: pointer; }
+    .fields { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: .5rem 1rem; }
+    .fields input, .fields select { width: 100%; }
+    .answer { white-space: pre-wrap; background: #f4f6f7; padding: 1rem; overflow-wrap: anywhere; }
+    .error { color: #a00; }
+  </style>
+</head>
+<body>
+  <h1>MGC Sales Assistant</h1>
+  <p>Local assessment demo. Answers reflect the supplied March–May 2025 documents, not live prices or availability.</p>
+  <section>
+    <h2>Document assistant</h2>
+    <form action="/ask" method="post">
+      <label for="question">Ask about the project, prices or booking policy</label>
+      <textarea id="question" name="question" rows="3" maxlength="2000" required placeholder="What's the transfer fee?">{{ question | default('') }}</textarea>
+      <button type="submit">Ask</button>
+    </form>
+    {% if response %}
+    <div role="status">
+      <h3>Answer</h3>
+      <p class="answer">{{ response.answer }}</p>
+      <h3>Sources</h3>
+      <ul>{% for source in response.sources %}
+        <li>{{ source.title }} — {{ source.date }} — {{ source.section }}<br><small>{{ source.file }}</small></li>
+      {% endfor %}</ul>
+    </div>
+    {% endif %}
+  </section>
+  <section>
+    <h2>Lead scoring</h2>
+    <p>Use details known at intake, after assigning an agent. Leave unknown values blank. The baseline score helps prioritize follow-up; it is not a guaranteed conversion rate.</p>
+    <form action="/score" method="post">
+      <div class="fields">
+      {% for key, label in [('source', 'Lead source'), ('city', 'City'), ('area', 'Area of interest'), ('property_type', 'Property type')] %}
+        <div><label for="{{ key }}">{{ label }}</label>
+        <select id="{{ key }}" name="{{ key }}">
+          <option value="">Unknown</option>
+          {% for value in options[key] %}<option value="{{ value }}" {% if values.get(key) == value %}selected{% endif %}>{{ value | title }}</option>{% endfor %}
+        </select></div>
+      {% endfor %}
+      {% for key, label, step, maximum in [('budget_pkr_lac', 'Budget (lac PKR; 1 lac = 100,000 PKR)', 'any', ''), ('bedrooms', 'Bedrooms (leave blank for plot/shop)', '1', '5'), ('agent_experience_years', 'Assigned agent experience (years)', 'any', '')] %}
+        <div><label for="{{ key }}">{{ label }}</label>
+        <input id="{{ key }}" name="{{ key }}" type="number" min="0" {% if maximum %}max="{{ maximum }}"{% endif %} step="{{ step }}" value="{{ values.get(key, '') }}"></div>
+      {% endfor %}
+      {% for key, label in [('is_overseas', 'Overseas buyer'), ('referred_by_existing_client', 'Referred by an existing client')] %}
+        <div><label for="{{ key }}">{{ label }}</label>
+        <select id="{{ key }}" name="{{ key }}">
+          <option value="">Unknown</option>
+          <option value="0" {% if values.get(key) == '0' %}selected{% endif %}>No</option>
+          <option value="1" {% if values.get(key) == '1' %}selected{% endif %}>Yes</option>
+        </select></div>
+      {% endfor %}
+      </div>
+      <button type="submit">Score lead</button>
+    </form>
+    {% if probability is defined %}<p role="status"><strong>Estimated conversion likelihood: {{ '%.2f' | format(probability * 100) }}%</strong></p>{% endif %}
+    {% if error %}<p role="alert" class="error">{{ error }}</p>{% endif %}
+  </section>
+</body>
+</html>

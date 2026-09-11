@@ -1,0 +1,27 @@
+{
+  "raw_rows": 9160,
+  "raw_converted": 634,
+  "raw_conversion_rate": 0.06921397379912664,
+  "duplicate_rows_removed": 160,
+  "canonical_rows": 9000,
+  "canonical_converted": 626,
+  "canonical_conversion_rate": 0.06955555555555555,
+  "train_rows": 7200,
+  "test_rows": 1800,
+  "test_converted": 125,
+  "test_prevalence_baseline": 0.06944444444444445,
+  "average_precision": 0.15565492442654666,
+  "roc_auc": 0.6725779104477613,
+  "random_state": 42,
+  "features": [
+    "source",
+    "city",
+    "area",
+    "property_type",
+    "budget_pkr_lac",
+    "bedrooms",
+    "agent_experience_years",
+    "is_overseas",
+    "referred_by_existing_client"
+  ]
+}
