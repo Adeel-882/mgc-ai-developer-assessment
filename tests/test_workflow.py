@@ -63,7 +63,7 @@ class WorkflowTests(unittest.TestCase):
         self.assertEqual(self.client.post("/api/score", json={"budget_pkr_lac": -3}).status_code, 422)
         self.assertEqual(self.client.post("/api/score", json={}).status_code, 422)
         response = self.client.post("/api/ask", json={"question": "Who is the anchor tenant?"})
-        self.assertIn("no anchor tenant has been confirmed", response.json()["answer"])
+        self.assertIn("No anchor tenant has been confirmed", response.json()["answer"])
 
     def test_empty_document_form(self):
         for data in [{}, {"question": ""}, {"question": "   "}]:

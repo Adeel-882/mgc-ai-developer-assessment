@@ -50,8 +50,9 @@ class DocumentAssistantTests(unittest.TestCase):
 
     def test_anchor_tenant(self):
         response = answer_question(REQUIRED_QUESTIONS[4])
-        self.assertIn("no anchor tenant has been confirmed", response["answer"])
+        self.assertEqual(response["answer"], "No anchor tenant has been confirmed. Anchor tenancy discussions were ongoing as of the March 2025 project brochure.")
         self.assertEqual(response["sources"][0]["file"], BROCHURE)
+        self.assertEqual(response["sources"][0]["section"], "Commercial Podium")
 
     def test_unknown(self):
         response = answer_question("Who is the architect?")

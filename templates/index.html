@@ -5,42 +5,105 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>MGC Sales Assistant</title>
   <style>
-    body { font: 16px/1.5 system-ui, sans-serif; max-width: 900px; margin: 2rem auto; padding: 0 1rem; color: #202020; }
-    section { border-top: 1px solid #ccc; padding: 1rem 0; }
-    label { display: block; margin-top: .65rem; }
-    input, select, textarea, button { font: inherit; padding: .4rem; box-sizing: border-box; }
-    textarea { width: 100%; }
-    button { margin-top: 1rem; cursor: pointer; }
-    .fields { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: .5rem 1rem; }
-    .fields input, .fields select { width: 100%; }
-    .answer { white-space: pre-wrap; background: #f4f6f7; padding: 1rem; overflow-wrap: anywhere; }
-    .error { color: #a00; }
+    :root {
+      color-scheme: light;
+      --page: #f6f5f2;
+      --surface: #fff;
+      --text: #242424;
+      --muted: #625f5a;
+      --border: #e3ddd3;
+      --control-border: #928a7e;
+      --primary: #971c30;
+      --primary-hover: #761526;
+      --focus: #971c30;
+      --gold: #b69a61;
+      --gold-text: #786033;
+      --gold-border: #ded0b6;
+    }
+    * { box-sizing: border-box; }
+    body { margin: 0; background: var(--page); color: var(--text); font: 16px/1.6 system-ui, -apple-system, "Segoe UI", sans-serif; }
+    .page-shell { max-width: 1200px; margin: 0 auto; padding: 40px 24px 64px; }
+    .page-header { margin-bottom: 32px; }
+    .eyebrow { margin: 0 0 8px; color: var(--gold-text); font-size: .75rem; font-weight: 700; letter-spacing: .12em; }
+    h1, h2, h3 { line-height: 1.25; }
+    h1 { margin: 0 0 12px; font-size: clamp(1.75rem, 3vw, 2.25rem); font-weight: 650; letter-spacing: -.035em; }
+    .heading-accent { color: var(--primary); }
+    h2 { margin: 0 0 20px; font-size: 1.25rem; font-weight: 650; letter-spacing: -.015em; }
+    h3 { margin: 0 0 12px; font-size: .875rem; font-weight: 650; }
+    .intro, .helper { color: var(--muted); font-size: .875rem; }
+    .intro { max-width: 72ch; margin: 0; }
+    .helper { margin: -8px 0 24px; }
+    .workspace { display: grid; gap: 24px; align-items: start; }
+    .card { min-width: 0; padding: 28px; background: var(--surface); border: 1px solid var(--border); border-radius: 12px; box-shadow: inset 0 2px 0 var(--gold), 0 2px 6px rgb(36 36 36 / 3%); }
+    label { display: block; margin-bottom: 8px; font-size: .875rem; font-weight: 600; line-height: 1.45; }
+    input, select, textarea, button { font: inherit; }
+    input, select, textarea { width: 100%; min-width: 0; min-height: 44px; padding: 10px 12px; color: var(--text); background: var(--surface); border: 1px solid var(--control-border); border-radius: 6px; caret-color: var(--primary); }
+    textarea { display: block; min-height: 136px; resize: vertical; line-height: 1.6; }
+    textarea::placeholder, input::placeholder { color: var(--muted); opacity: 1; }
+    select { cursor: pointer; }
+    input:hover, select:hover, textarea:hover { border-color: var(--primary); }
+    input:focus-visible, select:focus-visible, textarea:focus-visible, button:focus-visible { outline: 3px solid var(--focus); outline-offset: 3px; }
+    input:user-invalid, textarea:user-invalid { border-color: #a32828; }
+    button { min-height: 44px; margin-top: 20px; padding: 10px 24px; border: 1px solid var(--primary); border-radius: 6px; background: var(--primary); color: #fff; font-size: .875rem; font-weight: 650; cursor: pointer; touch-action: manipulation; }
+    button:hover { background: var(--primary-hover); border-color: var(--primary-hover); }
+    button:active { background: #5e1020; }
+    button:disabled { color: #605b54; background: #eae6df; border-color: var(--control-border); cursor: not-allowed; }
+    .fields { display: grid; gap: 20px; }
+    .fields > div { min-width: 0; }
+    .response { margin-top: 28px; padding-top: 24px; border-top: 1px solid var(--gold-border); }
+    .answer { margin: 0 0 24px; white-space: pre-wrap; background: #faf8f4; border-left: 3px solid var(--primary); border-radius: 0 6px 6px 0; padding: 16px; overflow-wrap: anywhere; font-size: .9375rem; line-height: 1.75; }
+    .sources { list-style: none; margin: 0; padding: 0; }
+    .sources li { padding: 12px 0; border-top: 1px solid var(--gold-border); font-size: .8125rem; overflow-wrap: anywhere; }
+    .source-title { display: block; font-weight: 600; }
+    .source-meta, .sources small { display: block; color: var(--muted); }
+    .source-meta { color: var(--gold-text); }
+    .sources small { margin-top: 4px; font-size: .75rem; }
+    .score-result { margin: 24px 0 0; padding: 16px; color: var(--primary); background: #faf8f4; border: 1px solid var(--gold); border-radius: 6px; font-variant-numeric: tabular-nums; }
+    .error { margin: 20px 0 0; padding: 12px 16px; color: #922525; background: #fff4f4; border: 1px solid #e7bebe; border-radius: 6px; }
+    @media (min-width: 600px) {
+      .fields { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .fields label { min-height: 2.9em; }
+    }
+    @media (min-width: 1050px) {
+      .workspace { grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr); }
+    }
+    @media (max-width: 599px) {
+      .page-shell { padding: 24px 16px 40px; }
+      .page-header { margin-bottom: 24px; }
+      .card { padding: 20px; }
+      button { width: 100%; }
+    }
   </style>
 </head>
 <body>
-  <h1>MGC Sales Assistant</h1>
-  <p>Local assessment demo. Answers reflect the supplied March–May 2025 documents, not live prices or availability.</p>
-  <section>
-    <h2>Document assistant</h2>
+  <div class="page-shell">
+  <header class="page-header">
+  <p class="eyebrow">MGC DEVELOPMENTS</p>
+  <h1><span class="heading-accent">MGC</span> Sales Assistant</h1>
+  <p class="intro">Local assessment demo. Answers reflect the supplied March–May 2025 documents, not live prices or availability.</p>
+  </header>
+  <main class="workspace">
+  <section class="card" aria-labelledby="assistant-heading">
+    <h2 id="assistant-heading">Document assistant</h2>
     <form action="/ask" method="post">
       <label for="question">Ask about the project, prices or booking policy</label>
       <textarea id="question" name="question" rows="3" maxlength="2000" required placeholder="What's the transfer fee?">{{ question | default('') }}</textarea>
       <button type="submit">Ask</button>
     </form>
     {% if response %}
-    <div role="status">
+    <div class="response" role="status">
       <h3>Answer</h3>
       <p class="answer">{{ response.answer }}</p>
       <h3>Sources</h3>
-      <ul>{% for source in response.sources %}
-        <li>{{ source.title }} — {{ source.date }} — {{ source.section }}<br><small>{{ source.file }}</small></li>
+      <ul class="sources">{% for source in response.sources %}
+        <li><span class="source-title">{{ source.title }}</span><span class="source-meta">{{ source.date }} — {{ source.section }}</span><small>{{ source.file }}</small></li>
       {% endfor %}</ul>
     </div>
     {% endif %}
   </section>
-  <section>
-    <h2>Lead scoring</h2>
-    <p>Use details known at intake, after assigning an agent. Leave unknown values blank. The baseline score helps prioritize follow-up; it is not a guaranteed conversion rate.</p>
+  <section class="card" aria-labelledby="scoring-heading">
+    <h2 id="scoring-heading">Lead scoring</h2>
+    <p class="helper">Use details known at intake, after assigning an agent. Leave unknown values blank. The baseline score helps prioritize follow-up; it is not a guaranteed conversion rate.</p>
     <form action="/score" method="post">
       <div class="fields">
       {% for key, label in [('source', 'Lead source'), ('city', 'City'), ('area', 'Area of interest'), ('property_type', 'Property type')] %}
@@ -65,8 +128,10 @@
       </div>
       <button type="submit">Score lead</button>
     </form>
-    {% if probability is defined %}<p role="status"><strong>Estimated conversion likelihood: {{ '%.2f' | format(probability * 100) }}%</strong></p>{% endif %}
+    {% if probability is defined %}<p class="score-result" role="status"><strong>Estimated conversion likelihood: {{ '%.2f' | format(probability * 100) }}%</strong></p>{% endif %}
     {% if error %}<p role="alert" class="error">{{ error }}</p>{% endif %}
   </section>
+  </main>
+  </div>
 </body>
 </html>

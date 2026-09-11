@@ -134,7 +134,10 @@ def answer_question(question, documents=None):
         paragraph = re.search(r"\*\*What is the rental yield\?\*\*\s*(.*?)(?:\n\n|$)", passage, re.S)[1]
         return result(plain(paragraph), [(POLICY, "Frequently Asked")], documents)
     if "anchor" in q or "tenant" in q:
-        return excerpts([(BROCHURE, "Commercial Podium")], documents)
+        return result(
+            "No anchor tenant has been confirmed. Anchor tenancy discussions were ongoing as of the March 2025 project brochure.",
+            [(BROCHURE, "Commercial Podium")], documents,
+        )
     if "transfer" in q:
         fee = transfer_answer(documents)
         if any(term in q for term in ["overseas", "remote", "abroad", "person", "eligible", "when", "condition", "how"]):
